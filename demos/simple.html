@@ -4,8 +4,9 @@
 
   <script src="../../platform/platform.js"></script>
   <link href="../core-animated-pages.html" rel="import">
-  <link href="../transitions/cross-fade.html" rel="import">
-  <link href="../transitions/slide-from-right.html" rel="import">
+  <!-- <link href="../transitions/cross-fade.html" rel="import"> -->
+  <!-- <link href="../transitions/slide-from-right.html" rel="import"> -->
+  <link href="../wa-transitions/cross-fade.html" rel="import">
 
   <style>
     body {
@@ -33,11 +34,11 @@
 </head>
 <body unresolved>
   <select onchange="change();">
-    <option value="cross-fade-all" selected>cross-fade-all</option>
+    <option value="cross-fade" selected>cross-fade</option>
     <option value="slide-from-right">slide-from-right</option>
   </select>
 
-  <core-animated-pages onclick="stuff();" transitions="cross-fade-all">
+  <core-animated-pages onclick="stuff();" transitions="cross-fade" self>
     <section>
       <div layout vertical center center-justified style="background:red;">
         <div>1</div>

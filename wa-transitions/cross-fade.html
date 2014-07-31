@@ -9,186 +9,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link href="core-transition-pages.html" rel="import">
 
-<core-style id="cross-fade">
-  polyfill-next-selector { content: ':host > * [cross-fade]'; }
-  ::content > * /deep/ [cross-fade] {
-    -webkit-transition: opacity {{g.transitions.xfadeDuration || g.transitions.duration}} cubic-bezier(0.4, 0, 0.2, 1);
-    transition: opacity {{g.transitions.xfadeDuration || g.transitions.duration}} cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  polyfill-next-selector { content: ':host > * [cross-fade][bg]'; }
-  ::content > * /deep/ [cross-fade][bg] {
-    -webkit-transition: background-color {{g.transitions.xfadeDuration || g.transitions.duration}} cubic-bezier(0.4, 0, 0.2, 1);
-    transition: background-color {{g.transitions.xfadeDuration || g.transitions.duration}} cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  polyfill-next-selector { content: ':host > * [cross-fade][hero-p]'; }
-  ::content > * /deep/ [cross-fade][hero-p] {
-    -webkit-transition: background-color {{g.transitions.xfadeDuration || g.transitions.duration}} cubic-bezier(0.4, 0, 0.2, 1);
-    transition: background-color {{g.transitions.xfadeDuration || g.transitions.duration}} cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  polyfill-next-selector { content: ':host > .core-selected [cross-fade]'; }
-  ::content > .core-selected /deep/ [cross-fade] {
-    opacity: 1;
-  }
-
-  polyfill-next-selector { content: ':host > [animate]:not(.core-selected) [cross-fade]:not([hero-p]):not([bg])'; }
-  ::content > [animate]:not(.core-selected) /deep/ [cross-fade]:not([hero-p]):not([bg]) {
-    opacity: 0;
-  }
-
-  polyfill-next-selector { content: ':host > [animate]:not(.core-selected) [cross-fade][bg]'; }
-  ::content > [animate]:not(.core-selected) /deep/ [cross-fade][bg] {
-    background-color: rgba(0, 0, 0, 0);
-  }
-
-  polyfill-next-selector { content: ':host > [animate]:not(.core-selected) [cross-fade][hero-p]'; }
-  ::content > [animate]:not(.core-selected) /deep/ [cross-fade][hero-p] {
-    background-color: rgba(0, 0, 0, 0);
-  }
-</core-style>
-
-<core-style id="cross-fade-delayed">
-  polyfill-next-selector { content: ':host > * [cross-fade-delayed]'; }
-  ::content > * /deep/ [cross-fade-delayed] {
-    -webkit-transition: opacity {{g.transitions.xfadeDuration || g.transitions.duration}} ease-out;
-    transition: opacity {{g.transitions.xfadeDuration || g.transitions.duration}} ease-out;
-  }
-
-  polyfill-next-selector { content: ':host > .core-selected [cross-fade-delayed]'; }
-  ::content > .core-selected /deep/ [cross-fade-delayed] {
-    -webkit-transition: opacity {{g.transitions.xfadeDuration || g.transitions.duration}} ease-out {{g.transitions.xfadeDelay || g.transitions.xfadeDuration || g.transitions.duration}};
-    transition: opacity {{g.transitions.xfadeDuration || g.transitions.duration}} ease-out {{g.transitions.xfadeDelay || g.transitions.xfadeDuration || g.transitions.duration}};
-  }
-
-  polyfill-next-selector { content: ':host > [animate]:not(.core-selected) [cross-fade-delayed]'; }
-  ::content > [animate]:not(.core-selected) /deep/ [cross-fade-delayed] {
-    opacity: 0;
-  }
-
-  polyfill-next-selector { content: ':host > .core-selected [cross-fade-delayed]'; }
-  ::content > .core-selected /deep/ [cross-fade-delayed] {
-    opacity: 1;
-  }
-
-</core-style>
-
-<core-style id="cross-fade-all">
-  /* cross-fade-all: cross fade everything except for heroes and their parents */
-  polyfill-next-selector { content: ':host(.cross-fade-all) > * *:not([hero]):not([hero-p]):not([cross-fade])'; }
-  :host(.cross-fade-all) ::content > * /deep/ *:not([hero]):not([hero-p]):not([cross-fade]) {
-    -webkit-transition: opacity {{g.transitions.xfadeDuration || g.transitions.duration}} ease-out;
-    transition: opacity {{g.transitions.xfadeDuration || g.transitions.duration}} ease-out;
-  }
-
-  polyfill-next-selector { content: ':host(.cross-fade-all) > [animate]:not(.core-selected) *:not([hero]):not([hero-p]):not([cross-fade])'; }
-  :host(.cross-fade-all) ::content > [animate]:not(.core-selected) /deep/ *:not([hero]):not([hero-p]):not([cross-fade]) {
-    opacity: 0;
-  }
-
-  polyfill-next-selector { content: ':host(.cross-fade-all) > .core-selected *:not([hero])'; }
-  .host(.cross-fade-all) ::content > .core-selected /deep/ * {
-    opacity: 1;
-  }
-
-  /* Only background-color is allowed for the hero's parents, no opacity transitions */
-  polyfill-next-selector { content: ':host(.cross-fade-all) > * [hero-p]'; }
-  :host(.cross-fade-all) ::content > * /deep/ [hero-p] {
-    -webkit-transition: background-color {{g.transitions.xfadeDuration || g.transitions.duration}} ease-out;
-    transition: background-color {{g.transitions.xfadeDuration || g.transitions.duration}} ease-out;
-    opacity: 1;
-  }
-
-  polyfill-next-selector { content: ':host(.cross-fade-all) > [animate]:not(.core-selected) [hero-p]'; }
-  :host(.cross-fade-all) ::content > [animate]:not(.core-selected) /deep/ [hero-p] {
-    background-color: rgba(0, 0, 0, 0);
-  }
-</core-style>
-
 <polymer-element name="cross-fade" extends="core-transition-pages">
 <script>
 (function() {
 
 Polymer({
 
-  get easing() {
-    return CoreStyle.g.transitions.easing;
-  },
+  prefix: 'xfade',
+  selector: '[cross-fade]',
 
-  get duration() {
-    return CoreStyle.g.transitions.xfadeDuration || CoreStyle.g.transitions.duration;
-  },
+  effectForNode: function(node, isSrc) {
+    // opacity or background-color
+    var from = {'opacity': 1};
+    var to = {'opacity': 0};
+    var fromBg = {'background-color': getComputedStyle(node).backgroundColor};
+    var toBg = {'background-color': 'rgba(0,0,0,0)'};
 
-  get delay() {
-    console.log('asdasd', CoreStyle.g.transitions.xfadeDelay || CoreStyle.g.transitions.xfadeDuration || CoreStyle.g.transitions.duration);
-    return CoreStyle.g.transitions.xfadeDelay || CoreStyle.g.transitions.xfadeDuration || CoreStyle.g.transitions.duration;
-  },
-
-  prepare: function(scope, options) {
-    var anims = [];
-    var selector = '[cross-fade]';
-    var srcEffect = [{'opacity': 1}, {'opacity': 0}];
-    var srcBgEffect = [{'background-color': ''}, {'background-color': 'rgba(0, 0, 0, 0)'}];
-    var dstEffect = [{'opacity': 0}, {'opacity': 1}];
-    var dstBgEffect = [{'background-color': 'rgba(0, 0, 0, 0)'}, {'background-color': ''}];
     var effect;
-    var timing = {
-      duration: this.duration,
-      easing: this.easing,
-      fill: 'both'
-    }
-
-    var targets = this.findAllInShadows(options.src, selector);
-    targets.forEach(function(t) {
-
-      // opacity or background-color
-      if (t.hasAttribute('bg')) {
-        srcBgEffect[0]['background-color'] = getComputedStyle(t).backgroundColor;
-        effect = srcBgEffect;
-      } else {
-        effect = srcEffect;
-      }
-
-      if (t.hasAttribute('delayed')) {
-        timing.delay = this.delay;
-      } else {
-        timing.delay = 0;
-      }
-
-      anims.push(new Animation(t, effect, timing));
-    }.bind(this));
-
-    targets = this.findAllInShadows(options.dst, selector);
-    targets.forEach(function(t) {
-
-      // opacity or background-color
-      if (t.hasAttribute('bg')) {
-        srcBgEffect[1]['background-color'] = getComputedStyle(t).backgroundColor;
-        effect = dstBgEffect;
-      } else {
-        effect = dstEffect;
-      }
-
-      if (t.hasAttribute('delayed')) {
-        timing.delay = this.delay;
-      } else {
-        timing.delay = 0;
-      }
-
-      anims.push(new Animation(t, effect, timing));
-    }.bind(this));
-
-    if (anims.length > 1) {
-      this.animation = new AnimationGroup(anims);
-    } else if (anims.length === 1) {
-      this.animation = anims[0];
+    if (node.hasAttribute('bg')) {
+      srcBgEffect[0]['background-color'] = getComputedStyle(t).backgroundColor;
+      effect = isSrc ? [fromBg, toBg] : [toBg, fromBg];
     } else {
-      this.animation = null;
+      effect = isSrc ? [from, to]: [to, from];
     }
-
-    return this.animation;
+    return effect;
   }
+
 });
 
 }());

@@ -27,12 +27,10 @@ Example:
 
 There are three stages to a page transition:
 
-1. `prepare`: Called to set up the incoming and outgoing pages to the "before" state,
-  e.g. setting the incoming page to `opacity: 0` for `cross-fade` or find and
-  measure hero elements for `hero-transition`.
+1. `prepare`: Called to prepare the transition. This may include generating an
+  animation, measuring elements, etc..
 
-2. `go`: Called to run the transition. For CSS-based transitions, this generally
-  applies a CSS `transition` property.
+2. `go`: Called to run the transition.
 
 3. `complete`: Called when the elements are finished transitioning.
 
@@ -75,31 +73,20 @@ Polymer({
     timing: null
   },
 
-  prepare: function(scope, options) {
-    // this.boundCompleteFn = this.complete.bind(this, scope);
-    // if (this.scopeClass) {
-    //   scope.classList.add(this.scopeClass);
-    // }
-    var anims = [];
-    var targets = this.findTargets(options.src);
-    targets.forEach(function(t) {
-      anims.push(new Animation(t, this.srcEffect, this.timing));
-    }.bind(this));
+  prefix: '',
 
-    targets = this.findTargets(options.dst);
-    targets.forEach(function(t) {
-      anims.push(new Animation(t, this.dstEffect, this.timing));
-    }.bind(this));
+  config: null,
 
-    if (anims.length > 1) {
-      this.animation = new AnimationGroup(anims);
-    } else if (anims.length === 1) {
-      this.animation = anims[0];
-    } else {
-      this.animation = null;
-    }
+  get easing() {
+    return CoreStyle.g.transitions.easing;
+  },
 
-    return this.animation;
+  get duration() {
+    return CoreStyle.g.transitions[this.prefix + 'Duration'] || CoreStyle.g.transitions.duration;
+  },
+
+  get delay() {
+    return CoreStyle.g.transitions[this.prefix + 'Delay'] || CoreStyle.g.transitions[this.prefix + 'Duration'] || CoreStyle.g.transitions.duration;
   },
 
   findTargets: function(el) {
@@ -124,6 +111,62 @@ Polymer({
     } else {
       return node.querySelectorAll(selector).array().concat(node.shadowRoot ? node.shadowRoot.querySelectorAll(selector).array() : []);
     }
+  },
+
+  effectForNode: function(node, isSrc) {
+    return null;
+  },
+
+  timingForNode: function(node) {
+    var timing = {
+      duration: this.duration,
+      easing: this.easing,
+      fill: 'both'
+    }
+    if (node.hasAttribute('delay')) {
+      timing.delay = parseInt(node.getAttribute('delay')) || this.delay;
+    }
+    return timing;
+  },
+
+  prepare: function(scope, options) {
+    var anims = [];
+
+    if (scope.hasAttribute('self')) {
+
+      anims.push(new Animation(options.src, this.effectForNode(options.src, true), this.timingForNode(options.src)));
+      anims.push(new Animation(options.dst, this.effectForNode(options.dst, false), this.timingForNode(options.dst)));
+
+    } else {
+
+      var targets = this.findAllInShadows(options.src, this.selector);
+      targets.forEach(function(t) {
+        anims.push(new Animation(t, this.effectForNode(t, true), this.timingForNode(t)));
+      }.bind(this));
+
+      targets = this.findAllInShadows(options.dst, this.selector);
+      targets.forEach(function(t) {
+        anims.push(new Animation(t, this.effectForNode(t, false), this.timingForNode(t)));
+      }.bind(this));
+
+      // also match the container node
+      if (options.src.matches(this.selector)) {
+        anims.push(new Animation(options.src, this.effectForNode(options.src, true), this.timingForNode(options.src)));
+      }
+      if (options.dst.matches(this.selector)) {
+        anims.push(new Animation(options.dst, this.effectForNode(options.dst, false), this.timingForNode(options.dst)));
+      }
+    }
+
+    if (anims.length > 1) {
+      this.animation = new AnimationGroup(anims);
+    } else if (anims.length === 1) {
+      this.animation = anims[0];
+    } else {
+      this.animation = null;
+    }
+
+    return this.animation;
   },
 
   go: function(scope, options) {
