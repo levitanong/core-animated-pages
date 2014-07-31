@@ -1,0 +1,40 @@
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link href="core-transition-pages.html" rel="import">
+
+<polymer-element name="cross-fade" extends="core-transition-pages">
+<script>
+(function() {
+
+Polymer({
+
+	prefix: 'slide',
+	selector: '[slide-up],[slide-down],[slide-left],[slide-right]';
+
+	effectForNode: function(node, isSrc) {
+		var t1 = {'transform': 'none'};
+		var t2;
+		if (this.id === 'slide-up') {
+			t2 = {'transform': 'translateY(-100%)'};
+		} else if (this.id === 'slide-down') {
+			t2 = {'transform': 'translateY(100%)'};
+		} else if (this.id === 'slide-left') {
+			t2 = {'transform': 'translateX(-100%)'};
+		} else if (this.id === 'slide-right') {
+			t2 = {'transform': 'translateX(100%)'};
+		}
+		return isSrc ? [t1, t2] : [t2, t1];
+	}
+
+});
+
+}());
+</script>
+</polymer-element>
