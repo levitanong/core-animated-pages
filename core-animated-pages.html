@@ -272,7 +272,12 @@ Fired when a page transition completes.
      * @type Object
      * @default null
      */
-    lastSelected: null,
+    publish: {
+        lastSelected: {
+            value: null,
+            reflect: true
+        },
+    },
 
     registerCallback: function() {
       this.tmeta = document.createElement('core-transition');
